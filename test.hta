@@ -1,1 +1,28 @@
 
+<html>
+<head>
+  <title>Popup</title>
+  <HTA:APPLICATION
+    ID="app"
+    BORDER="thin"
+    CAPTION="yes"
+    SHOWINTASKBAR="yes"
+    SINGLEINSTANCE="yes"
+    SYSMENU="yes"
+    WINDOWSTATE="normal"
+    SCROLL="no"
+  >
+  <script language="VBScript">
+    Sub Window_OnLoad()
+      Dim result
+      result = MsgBox("You've been hacked", vbOKOnly + vbExclamation, "Warning!")
+      If result = vbOK Then
+        MsgBox "jk lol", vbInformation, "Just kidding"
+        window.close()
+      End If
+    End Sub
+  </script>
+</head>
+<body>
+</body>
+</html>
