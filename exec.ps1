@@ -1,1 +1,1 @@
-echo hi | clip
+Set-Clipboard -Value "Hello hacked"
